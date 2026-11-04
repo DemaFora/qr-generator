@@ -1,6 +1,20 @@
-const express = require('express');
+const http = require('http');
+const fs = require('fs');
 const path = require('path');
-const app = express();
 const PORT = process.env.PORT || 3000;
-app.use(express.static(path.join(__dirname, 'public')));
-app.listen(PORT, () => console.log('QR server running on port', PORT));
+
+const server = http.createServer((req, res) => {
+  let filePath = path.join(__dirname, 'public', req.url === '/' ? 'index.html' : req.url);
+  const ext = path.extname(filePath);
+  const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'application/javascript' };
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      res.writeHead(404);
+      return res.end('Not found');
+    }
+    res.writeHead(200, { 'Content-Type': mime[ext] || 'text/plain' });
+    res.end(data);
+  });
+});
+
+server.listen(PORT, () => console.log('QR server running on port', PORT));
