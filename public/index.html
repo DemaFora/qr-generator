@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR Code Generator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Arial, sans-serif;
+    background: #f5f8ff;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  }
+  h1 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #0a1628;
+    margin-bottom: 6px;
+  }
+  p.sub {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 28px;
+  }
+  label {
+    display: block;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #444;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  input[type="text"] {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1.5px solid #d0d7e8;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    color: #0a1628;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]:focus { border-color: #2563eb; }
+  button.generate {
+    width: 100%;
+    margin-top: 14px;
+    padding: 14px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  button.generate:hover { background: #1d4ed8; }
+  .qr-wrap {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 32px;
+    padding-top: 32px;
+    border-top: 1px solid #eef0f5;
+  }
+  .qr-wrap.visible { display: flex; }
+  #qrcode {
+    padding: 16px;
+    background: #fff;
+    border: 1.5px solid #d0d7e8;
+    border-radius: 12px;
+  }
+  #qrcode canvas, #qrcode img { display: block; }
+  .url-display {
+    margin-top: 14px;
+    font-size: 0.78rem;
+    color: #888;
+    word-break: break-all;
+    text-align: center;
+    max-width: 300px;
+  }
+  button.download {
+    margin-top: 20px;
+    padding: 11px 28px;
+    background: #0a1628;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  button.download:hover { background: #1a2f50; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>QR Code Generator</h1>
+  <p class="sub">Paste a link, get a QR code to scan or download.</p>
+
+  <label for="urlInput">URL</label>
+  <input type="text" id="urlInput" placeholder="https://example.com" autocomplete="off" />
+  <button class="generate" onclick="generateQR()">Generate QR Code</button>
+
+  <div class="qr-wrap" id="qrWrap">
+    <div id="qrcode"></div>
+    <div class="url-display" id="urlDisplay"></div>
+    <button class="download" onclick="downloadQR()">Download PNG</button>
+  </div>
+</div>
+
+<script>
+  let qrInstance = null;
+
+  function generateQR() {
+    let url = document.getElementById('urlInput').value.trim();
+    if (!url) return;
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      url = 'https://' + url;
+      document.getElementById('urlInput').value = url;
+    }
+
+    const container = document.getElementById('qrcode');
+    container.innerHTML = '';
+
+    qrInstance = new QRCode(container, {
+      text: url,
+      width: 240,
+      height: 240,
+      colorDark: '#0a1628',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H
+    });
+
+    document.getElementById('urlDisplay').textContent = url;
+    document.getElementById('qrWrap').classList.add('visible');
+  }
+
+  function downloadQR() {
+    const canvas = document.querySelector('#qrcode canvas');
+    if (!canvas) return;
+    const link = document.createElement('a');
+    link.download = 'qrcode.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }
+
+  document.getElementById('urlInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') generateQR();
+  });
+</script>
+
+</body>
+</html>
